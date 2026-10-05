@@ -1,0 +1,11 @@
+
+............
+----------------------------------------------------------------------
+Ran 12 tests in 0.000s
+
+OK
+BankAccount | Client: Alex | Account: ****288e | Status: active | Balance: 1000.00 RUB
+BankAccount | Client: Maria | Account: ****7b4c | Status: frozen | Balance: 500.00 USD
+BankAccount | Client: Alex | Account: ****288e | Status: active | Balance: 1300.00 RUB
+Account is frozen
+Account is frozen
