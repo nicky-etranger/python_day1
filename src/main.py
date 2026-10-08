@@ -6,6 +6,7 @@ from models import (
 
 
 def main():
+    print("The 1st day task")
     active_account = BankAccount(
         owner="Alex",
         balance=1000,

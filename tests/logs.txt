@@ -9,3 +9,12 @@ BankAccount | Client: Maria | Account: ****7b4c | Status: frozen | Balance: 500.
 BankAccount | Client: Alex | Account: ****288e | Status: active | Balance: 1300.00 RUB
 Account is frozen
 Account is frozen
+SavingsAccount | Client: Alex | Account: ****a9f6 | Status: active | Balance: 8080.00 RUB | Min balance: 2000.00 | Monthly rate: 1.00%
+SavingsAccount | Client: Maria | Account: ****71bc | Status: active | Balance: 5000.00 USD | Min balance: 1000.00 | Monthly rate: 2.00%
+Withdrawal would violate minimum balance
+PremiumAccount | Client: John | Account: ****f7b9 | Status: active | Balance: -2100.00 EUR | Overdraft: 10000.00 | Fee: 100.00
+PremiumAccount | Client: Anna | Account: ****9e8a | Status: active | Balance: 14800.00 RUB | Overdraft: 50000.00 | Fee: 200.00
+InvestmentAccount | Client: David | Account: ****9ef1 | Status: active | Balance: 10000.00 USD | Portfolio: 10000.00 USD
+InvestmentAccount | Client: Kate | Account: ****d520 | Status: active | Balance: 8000.00 EUR | Portfolio: 7000.00 EUR
+760.00
+610.00
