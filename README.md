@@ -1,4 +1,4 @@
-# python_day1
+# python_OOP
 Python day 1: OOP
 
 проект с базовой объектной моделью банковских счетов.
