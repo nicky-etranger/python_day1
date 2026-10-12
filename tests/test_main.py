@@ -104,7 +104,75 @@ class TestBankAccount(unittest.TestCase):
                 owner="Alex",
                 currency="GBP",
             )
+    def test_infinite_initial_balance(self):
+        with self.assertRaises(ValueError):
+            BankAccount(
+                owner="Alex",
+                balance="Infinity",
+            )
 
+    def test_nan_initial_balance(self):
+        with self.assertRaises(ValueError):
+            BankAccount(
+                owner="Alex",
+                balance="NaN",
+            )
+
+    def test_infinite_deposit(self):
+        account = BankAccount(
+            owner="Alex",
+            balance=1000,
+        )
+
+        with self.assertRaises(ValueError):
+            account.deposit("Infinity")
+
+        self.assertEqual(
+            account.balance,
+            1000,
+        )
+
+    def test_nan_deposit(self):
+        account = BankAccount(
+            owner="Alex",
+            balance=1000,
+        )
+
+        with self.assertRaises(ValueError):
+            account.deposit("NaN")
+
+        self.assertEqual(
+            account.balance,
+            1000,
+        )
+
+    def test_infinite_withdraw(self):
+        account = BankAccount(
+            owner="Alex",
+            balance=1000,
+        )
+
+        with self.assertRaises(ValueError):
+            account.withdraw("Infinity")
+
+        self.assertEqual(
+            account.balance,
+            1000,
+        )
+
+    def test_nan_withdraw(self):
+        account = BankAccount(
+            owner="Alex",
+            balance=1000,
+        )
+
+        with self.assertRaises(ValueError):
+            account.withdraw("NaN")
+
+        self.assertEqual(
+            account.balance,
+            1000,
+        )
 
 if __name__ == "__main__":
     unittest.main()

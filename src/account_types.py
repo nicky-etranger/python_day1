@@ -37,6 +37,14 @@ class SavingsAccount(BankAccount):
         except (InvalidOperation, ValueError, TypeError):
             raise ValueError("Savings account parameters must be valid numbers")
 
+        if (
+            not self.min_balance.is_finite()
+            or not self.monthly_interest_rate.is_finite()
+        ):
+            raise ValueError("Savings account parameters must be finite")
+
+
+
         if self.min_balance < 0:
             raise ValueError("Minimum balance cannot be negative")
 
@@ -118,6 +126,14 @@ class PremiumAccount(BankAccount):
             self.fixed_fee = Decimal(str(fixed_fee))
         except (InvalidOperation, ValueError, TypeError):
             raise ValueError("Premium account parameters must be valid numbers")
+
+
+        if (
+            not self.withdrawal_limit.is_finite()
+            or not self.overdraft_limit.is_finite()
+            or not self.fixed_fee.is_finite()
+        ):
+            raise ValueError("Premium account parameters must be finite")
 
         if self.withdrawal_limit <= 0:
             raise ValueError("Withdrawal limit must be greater than zero")
@@ -236,7 +252,8 @@ class InvestmentAccount(BankAccount):
                 rate = Decimal(str(growth_rates[asset_type]))
             except (InvalidOperation, ValueError, TypeError):
                 raise ValueError("Growth rate must be a valid number")
-
+            if not rate.is_finite():
+                raise ValueError("Growth rate must be finite")
             growth += amount * rate
 
         return growth

@@ -12,6 +12,9 @@ def validate_amount(amount) -> Decimal:
     except (InvalidOperation, ValueError, TypeError):
         raise ValueError("Amount must be a valid number")
 
+    if not value.is_finite():
+        raise ValueError("Amount must be a finite number")
+
     if value <= 0:
         raise ValueError("Amount must be greater than zero")
 

@@ -26,7 +26,10 @@ class RiskAnalyzer:
             raise ValueError(
                 "Large amount threshold must be a valid number"
             )
-
+        if not self.large_amount_threshold.is_finite():
+            raise ValueError(
+                "Large amount threshold must be finite"
+            )
         if self.large_amount_threshold <= 0:
             raise ValueError(
                 "Large amount threshold must be greater than zero"

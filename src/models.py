@@ -3,7 +3,7 @@ from decimal import Decimal
 from enum import Enum
 
 from utils import generate_account_id, validate_amount
-
+from decimal import Decimal, InvalidOperation
 
 class AccountFrozenError(Exception):
     pass
@@ -73,13 +73,19 @@ class BankAccount(AbstractAccount):
         if not isinstance(owner, str) or not owner.strip():
             raise ValueError("Owner must be a non-empty string")
 
+
         try:
             initial_balance = Decimal(str(balance))
-        except Exception:
+        except (InvalidOperation, ValueError, TypeError):
             raise ValueError("Balance must be a valid number")
+
+        if not initial_balance.is_finite():
+            raise ValueError("Balance must be a finite number")
 
         if initial_balance < 0:
             raise ValueError("Balance cannot be negative")
+
+
 
         if not isinstance(status, AccountStatus):
             raise ValueError("Invalid account status")
