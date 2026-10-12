@@ -1,0 +1,29 @@
+{
+  "report_type": "bank",
+  "clients_count": 6,
+  "accounts_count": 12,
+  "total_balance": "1123200.00",
+  "transaction_statistics": {
+    "total": 36,
+    "completed": 27,
+    "failed": 9,
+    "cancelled": 0
+  },
+  "top_clients": [
+    {
+      "client_id": "6276c77e",
+      "full_name": "Anna Green",
+      "balance": "309000"
+    },
+    {
+      "client_id": "bed43d4b",
+      "full_name": "David Black",
+      "balance": "279000"
+    },
+    {
+      "client_id": "2a2d5f77",
+      "full_name": "Maria Brown",
+      "balance": "208500"
+    }
+  ]
+}
