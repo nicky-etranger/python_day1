@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from decimal import Decimal
+
 from enum import Enum
 
 from utils import generate_account_id, validate_amount
