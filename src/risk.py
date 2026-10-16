@@ -26,10 +26,12 @@ class RiskAnalyzer:
             raise ValueError(
                 "Large amount threshold must be a valid number"
             )
+
         if not self.large_amount_threshold.is_finite():
             raise ValueError(
                 "Large amount threshold must be finite"
             )
+
         if self.large_amount_threshold <= 0:
             raise ValueError(
                 "Large amount threshold must be greater than zero"
@@ -54,9 +56,7 @@ class RiskAnalyzer:
                 "Frequent operations window must be a positive integer"
             )
 
-        self.frequent_operations_limit = (
-            frequent_operations_limit
-        )
+        self.frequent_operations_limit = frequent_operations_limit
         self.frequent_operations_window = timedelta(
             minutes=frequent_operations_window_minutes
         )
@@ -131,7 +131,6 @@ class RiskAnalyzer:
                 "transaction_id": transaction.transaction_id,
                 "sender_account_id": transaction.sender.account_id,
                 "recipient_account_id": transaction.recipient.account_id,
-                "client": transaction.sender.owner,
                 "timestamp": transaction.created_at,
                 "risk_level": analysis["level"],
                 "score": analysis["score"],
@@ -141,12 +140,14 @@ class RiskAnalyzer:
 
     def get_client_risk_profile(
         self,
-        client: str,
+        account_numbers: list[str],
     ) -> dict:
+        account_ids = set(account_numbers)
+
         records = [
             record
             for record in self.history
-            if record["client"] == client
+            if record["sender_account_id"] in account_ids
         ]
 
         levels = {
@@ -166,7 +167,7 @@ class RiskAnalyzer:
             overall_risk = RiskLevel.LOW
 
         return {
-            "client": client,
+            "account_numbers": list(account_numbers),
             "risk_level": overall_risk,
             "total_operations": len(records),
             "low_risk": levels[RiskLevel.LOW],

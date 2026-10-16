@@ -1,5 +1,6 @@
 import sys
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 sys.path.append(
@@ -9,8 +10,13 @@ sys.path.append(
     )
 )
 
+from client import Client
 from demo import BankDemo
-from transaction import TransactionStatus
+from transaction import (
+    Transaction,
+    TransactionStatus,
+    TransactionType,
+)
 
 
 class TestBankDemo(unittest.TestCase):
@@ -215,6 +221,79 @@ class TestBankDemo(unittest.TestCase):
         self.assertLessEqual(
             final_balance,
             initial_balance,
+        )
+    def test_history_is_separated_for_same_names(self):
+        demo = BankDemo()
+
+        client1 = Client(
+            full_name="Alex Smith",
+            age=25,
+            contacts={"phone": "1"},
+        )
+
+        client2 = Client(
+            full_name="Alex Smith",
+            age=30,
+            contacts={"phone": "2"},
+        )
+
+        demo.bank.add_client(
+            client1,
+            "password1",
+        )
+
+        demo.bank.add_client(
+            client2,
+            "password2",
+        )
+
+        account1 = demo.bank.open_account(
+            client1.client_id,
+            balance=1000,
+        )
+
+        account2 = demo.bank.open_account(
+            client1.client_id,
+            balance=1000,
+        )
+
+        demo.bank.open_account(
+            client2.client_id,
+            balance=1000,
+        )
+
+        transaction = Transaction(
+            TransactionType.INTERNAL,
+            100,
+            "RUB",
+            account1,
+            account2,
+        )
+
+        transaction.created_at = datetime(
+            2026,
+            10,
+            11,
+            12,
+            0,
+        )
+
+        demo.transactions.append(
+            transaction
+        )
+
+        self.assertEqual(
+            demo.get_client_history(
+                client1.client_id
+            ),
+            [transaction],
+        )
+
+        self.assertEqual(
+            demo.get_client_history(
+                client2.client_id
+            ),
+            [],
         )
 
 

@@ -134,7 +134,6 @@ class BankDemo:
         )
 
         transaction.created_at = created_at
-
         self.transactions.append(transaction)
 
         return transaction
@@ -282,15 +281,14 @@ class BankDemo:
         client_id: str,
     ) -> list:
         client = self.bank.clients[client_id]
+        account_ids = set(client.account_numbers)
 
         return [
             transaction
             for transaction in self.transactions
             if (
-                transaction.sender.owner
-                == client.full_name
-                or transaction.recipient.owner
-                == client.full_name
+                transaction.sender.account_id in account_ids
+                or transaction.recipient.account_id in account_ids
             )
         ]
 

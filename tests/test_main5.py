@@ -240,6 +240,58 @@ class TestRiskAnalyzer(unittest.TestCase):
             RiskLevel.MEDIUM,
         )
 
+    def test_risk_profiles_are_separated_by_account(self):
+        first_sender = BankAccount(
+            owner="Alex Smith",
+            balance=100000,
+        )
+
+        second_sender = BankAccount(
+            owner="Alex Smith",
+            balance=100000,
+        )
+
+        transaction = Transaction(
+            TransactionType.INTERNAL,
+            60000,
+            "RUB",
+            first_sender,
+            self.recipient,
+        )
+
+        analysis = self.analyzer.analyze(
+            transaction
+        )
+
+        self.analyzer.record(
+            transaction,
+            analysis,
+        )
+
+        first_profile = (
+            self.analyzer
+            .get_client_risk_profile(
+                [first_sender.account_id]
+            )
+        )
+
+        second_profile = (
+            self.analyzer
+            .get_client_risk_profile(
+                [second_sender.account_id]
+            )
+        )
+
+        self.assertEqual(
+            first_profile["total_operations"],
+            1,
+        )
+
+        self.assertEqual(
+            second_profile["total_operations"],
+            0,
+        )
+
 
 class TestSecureTransactionProcessor(unittest.TestCase):
     def setUp(self):
@@ -400,6 +452,51 @@ class TestSecureTransactionProcessor(unittest.TestCase):
             transaction.status,
             TransactionStatus.FAILED,
         )
+    def test_night_transaction_is_blocked(self):
+        transaction = Transaction(
+            TransactionType.INTERNAL,
+            1000,
+            "RUB",
+            self.sender,
+            self.recipient,
+        )
+
+        transaction.created_at = datetime(
+            2026,
+            10,
+            11,
+            2,
+            0,
+        )
+
+        sender_balance = self.sender.balance
+        recipient_balance = self.recipient.balance
+
+        self.processor.process(transaction)
+
+        self.assertEqual(
+            transaction.status,
+            TransactionStatus.FAILED,
+        )
+
+        self.assertEqual(
+            self.sender.balance,
+            sender_balance,
+        )
+
+        self.assertEqual(
+            self.recipient.balance,
+            recipient_balance,
+        )
+
+        blocked = self.audit.filter(
+            event_type="risk_blocked"
+        )
+
+        self.assertEqual(
+            len(blocked),
+            1,
+        )
 
 
 class TestAuditReports(unittest.TestCase):
@@ -466,7 +563,7 @@ class TestAuditReports(unittest.TestCase):
         profile = (
             self.reports
             .get_client_risk_profile(
-                "Alex Smith"
+                [sender.account_id]
             )
         )
 

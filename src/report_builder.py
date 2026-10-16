@@ -29,8 +29,12 @@ class ReportBuilder:
         client = self.demo.bank.clients[client_id]
         accounts = self.demo.get_client_accounts(client_id)
         history = self.demo.get_client_history(client_id)
-        risk_profile = self.demo.risk_analyzer.get_client_risk_profile(
-            client.full_name
+
+        risk_profile = (
+            self.demo.risk_analyzer
+            .get_client_risk_profile(
+                client.account_numbers
+            )
         )
 
         return {
@@ -87,9 +91,13 @@ class ReportBuilder:
         suspicious = self.demo.get_suspicious_operations()
 
         clients = [
-            self.demo.risk_analyzer.get_client_risk_profile(
-                client.full_name
-            )
+            {
+                "client_id": client.client_id,
+                "full_name": client.full_name,
+                **self.demo.risk_analyzer.get_client_risk_profile(
+                    client.account_numbers
+                ),
+            }
             for client in self.demo.bank.clients.values()
         ]
 
@@ -313,10 +321,8 @@ class ReportBuilder:
                     transaction.status
                     == TransactionStatus.COMPLETED
                     and (
-                        transaction.sender
-                        is account
-                        or transaction.recipient
-                        is account
+                        transaction.sender is account
+                        or transaction.recipient is account
                     )
                 )
             ],
@@ -379,13 +385,12 @@ class ReportBuilder:
         ):
             if transaction.sender is account:
                 current_balance += (
-                    transaction.amount
-                    + transaction.commission
+                    transaction.debited_amount
                 )
 
             if transaction.recipient is account:
                 current_balance -= (
-                    transaction.amount
+                    transaction.credited_amount
                 )
 
             reversed_balances.append(

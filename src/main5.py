@@ -4,9 +4,7 @@ from audit import AuditLog
 from audit_reports import AuditReports
 from models import BankAccount
 from risk import RiskAnalyzer
-from secure_transaction_processor import (
-    SecureTransactionProcessor,
-)
+from secure_transaction_processor import SecureTransactionProcessor
 from transaction import Transaction, TransactionType
 
 
@@ -137,7 +135,7 @@ def main():
 
     print(
         reports.get_client_risk_profile(
-            "Alex Smith"
+            [sender.account_id]
         )
     )
 

@@ -35,8 +35,10 @@ class Transaction:
             amount = Decimal(str(amount))
         except (InvalidOperation, ValueError, TypeError):
             raise ValueError("Amount must be a valid number")
+
         if not amount.is_finite():
             raise ValueError("Amount must be a finite number")
+
         if amount <= 0:
             raise ValueError("Amount must be greater than zero")
 
@@ -63,6 +65,8 @@ class Transaction:
         self.amount = amount
         self.currency = currency
         self.commission = Decimal("0")
+        self.debited_amount = Decimal("0")
+        self.credited_amount = Decimal("0")
         self.sender = sender
         self.recipient = recipient
         self.status = TransactionStatus.PENDING

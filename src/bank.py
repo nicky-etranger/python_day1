@@ -68,6 +68,9 @@ class Bank:
             **account_data,
         )
 
+        if account.account_id in self.accounts:
+            raise ValueError("Account ID already exists")
+
         self.accounts[account.account_id] = account
         client.account_numbers.append(account.account_id)
 

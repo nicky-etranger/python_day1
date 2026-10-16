@@ -32,10 +32,12 @@ class TransactionProcessor:
             raise ValueError(
                 "External fee rate must be a valid number"
             )
+
         if not self.external_fee_rate.is_finite():
             raise ValueError(
                 "External fee rate must be finite"
             )
+
         if self.external_fee_rate < 0:
             raise ValueError(
                 "External fee rate cannot be negative"
@@ -72,10 +74,12 @@ class TransactionProcessor:
             raise ValueError(
                 "Exchange rate must be a valid number"
             )
+
         if not rate.is_finite():
             raise ValueError(
                 "Exchange rate must be finite"
             )
+
         if rate <= 0:
             raise ValueError(
                 "Exchange rate must be greater than zero"
@@ -145,8 +149,21 @@ class TransactionProcessor:
 
         recipient_amount = transaction.amount * rate
 
+        sender_balance_before = transaction.sender.balance
+        recipient_balance_before = transaction.recipient.balance
+
         transaction.sender.withdraw(total_debit)
         transaction.recipient.deposit(recipient_amount)
+
+        transaction.debited_amount = (
+            sender_balance_before
+            - transaction.sender.balance
+        )
+
+        transaction.credited_amount = (
+            transaction.recipient.balance
+            - recipient_balance_before
+        )
 
     def process(
         self,

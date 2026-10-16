@@ -14,7 +14,15 @@ sys.path.append(
 
 from demo import BankDemo
 from report_builder import ReportBuilder
+from decimal import Decimal
 
+from account_types import PremiumAccount
+from models import BankAccount
+from transaction import (
+    Transaction,
+    TransactionType,
+)
+from transaction_processor import TransactionProcessor
 
 class TestReportBuilder(unittest.TestCase):
     @classmethod
@@ -252,6 +260,101 @@ class TestReportBuilder(unittest.TestCase):
                     path.stat().st_size,
                     0,
                 )
+def test_balance_reconstruction_with_conversion(self):
+    sender = BankAccount(
+        owner="Alex",
+        balance=10000,
+        currency="RUB",
+    )
+
+    recipient = BankAccount(
+        owner="Maria",
+        balance=100,
+        currency="USD",
+    )
+
+    processor = TransactionProcessor(
+        exchange_rates={
+            ("RUB", "USD"): 0.01,
+        }
+    )
+
+    transaction = Transaction(
+        TransactionType.INTERNAL,
+        1000,
+        "RUB",
+        sender,
+        recipient,
+    )
+
+    processor.process(transaction)
+
+    self.assertEqual(
+        transaction.debited_amount,
+        Decimal("1000"),
+    )
+
+    self.assertEqual(
+        transaction.credited_amount,
+        Decimal("10.00"),
+    )
+
+    balances = (
+        self.builder
+        ._reconstruct_balances(
+            recipient,
+            [transaction],
+        )
+    )
+
+    self.assertEqual(
+        balances,
+        [100.0, 110.0],
+    )
+
+    def test_balance_reconstruction_with_premium_fee(self):
+        sender = PremiumAccount(
+            owner="Alex",
+            balance=2000,
+            currency="RUB",
+            fixed_fee=100,
+        )
+
+        recipient = BankAccount(
+            owner="Maria",
+            balance=1000,
+            currency="RUB",
+        )
+
+        processor = TransactionProcessor()
+
+        transaction = Transaction(
+            TransactionType.INTERNAL,
+            1000,
+            "RUB",
+            sender,
+            recipient,
+        )
+
+        processor.process(transaction)
+
+        self.assertEqual(
+            transaction.debited_amount,
+            Decimal("1100"),
+        )
+
+        balances = (
+            self.builder
+            ._reconstruct_balances(
+                sender,
+                [transaction],
+            )
+        )
+
+        self.assertEqual(
+            balances,
+            [2000.0, 900.0],
+        )
 
 
 if __name__ == "__main__":

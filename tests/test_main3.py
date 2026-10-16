@@ -304,6 +304,36 @@ class TestBank(unittest.TestCase):
                 client.client_id,
                 balance=1000,
             )
+    def test_duplicate_account_id(self):
+        account = self.bank.open_account(
+            self.client1.client_id,
+            account_id="account1",
+            balance=1000,
+        )
+
+        with self.assertRaises(ValueError):
+            self.bank.open_account(
+                self.client2.client_id,
+                account_id="account1",
+                balance=5000,
+            )
+
+        self.assertIs(
+            self.bank.accounts["account1"],
+            account,
+        )
+
+        self.assertNotIn(
+            "account1",
+            self.client2.account_numbers,
+        )
+
+        self.assertEqual(
+            self.bank.search_accounts(
+                client_id=self.client1.client_id
+            ),
+            [account],
+        )
 
 
 if __name__ == "__main__":

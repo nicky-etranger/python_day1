@@ -23,10 +23,10 @@ class AuditReports:
 
     def get_client_risk_profile(
         self,
-        client: str,
+        account_numbers: list[str],
     ) -> dict:
         return self.risk_analyzer.get_client_risk_profile(
-            client
+            account_numbers
         )
 
     def get_error_statistics(self) -> dict:

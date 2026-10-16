@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from audit import AuditLevel, AuditLog
+from models import InvalidOperationError
 from risk import RiskAnalyzer, RiskLevel
 from transaction import Transaction, TransactionStatus
 from transaction_processor import TransactionProcessor
@@ -28,6 +29,11 @@ class SecureTransactionProcessor(TransactionProcessor):
         self,
         transaction: Transaction,
     ) -> Transaction:
+        if transaction.status != TransactionStatus.PENDING:
+            raise InvalidOperationError(
+                "Transaction is not pending"
+            )
+
         analysis = self.risk_analyzer.analyze(
             transaction
         )
@@ -37,25 +43,20 @@ class SecureTransactionProcessor(TransactionProcessor):
             analysis,
         )
 
-        if analysis["level"] == RiskLevel.MEDIUM:
-            self.audit_log.log(
-                AuditLevel.WARNING,
-                "risk_detected",
-                "Suspicious transaction detected",
-                transaction_id=transaction.transaction_id,
-                client=transaction.sender.owner,
-                data={
-                    "risk_level": analysis["level"].value,
-                    "score": analysis["score"],
-                    "reasons": analysis["reasons"],
-                },
-            )
-
-        if analysis["level"] == RiskLevel.HIGH:
-            reason = (
-                "Transaction blocked due to high risk: "
-                + ", ".join(analysis["reasons"])
-            )
+        if (
+            "night_operation" in analysis["reasons"]
+            or analysis["level"] == RiskLevel.HIGH
+        ):
+            if "night_operation" in analysis["reasons"]:
+                reason = (
+                    "Transaction blocked: operations are not allowed "
+                    "from 00:00 to 05:00"
+                )
+            else:
+                reason = (
+                    "Transaction blocked due to high risk: "
+                    + ", ".join(analysis["reasons"])
+                )
 
             transaction.status = TransactionStatus.FAILED
             transaction.rejection_reason = reason
@@ -76,6 +77,20 @@ class SecureTransactionProcessor(TransactionProcessor):
             )
 
             return transaction
+
+        if analysis["level"] == RiskLevel.MEDIUM:
+            self.audit_log.log(
+                AuditLevel.WARNING,
+                "risk_detected",
+                "Suspicious transaction detected",
+                transaction_id=transaction.transaction_id,
+                client=transaction.sender.owner,
+                data={
+                    "risk_level": analysis["level"].value,
+                    "score": analysis["score"],
+                    "reasons": analysis["reasons"],
+                },
+            )
 
         result = super().process(transaction)
 
